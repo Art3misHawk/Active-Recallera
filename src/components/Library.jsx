@@ -5,6 +5,7 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [sortBy, setSortBy] = useState('created');
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
 
   const allTags = noteService.getAllTags();
 
@@ -92,6 +93,23 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
             <option value="due">Sort by Due Date</option>
             <option value="reviews">Sort by Reviews</option>
           </select>
+
+          <div className="view-selector">
+            <button
+              className={`btn ${viewMode === 'cards' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+              onClick={() => setViewMode('cards')}
+              title="Card view"
+            >
+              📋 Cards
+            </button>
+            <button
+              className={`btn ${viewMode === 'table' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+              onClick={() => setViewMode('table')}
+              title="Table view"
+            >
+              📊 Table
+            </button>
+          </div>
         </div>
       </div>
 
@@ -129,7 +147,7 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
               : 'Start by creating your first note!'}
           </p>
         </div>
-      ) : (
+      ) : viewMode === 'cards' ? (
         <div className="notes-grid">
           {filteredNotes.map(note => {
             const status = getNoteStatus(note);
@@ -178,6 +196,100 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
               </div>
             );
           })}
+        </div>
+      ) : (
+        <div className="notes-table-container">
+          <table className="notes-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Tags</th>
+                <th>Due Date</th>
+                <th>Reviews</th>
+                <th>Success Rate</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredNotes.map(note => {
+                const status = getNoteStatus(note);
+                const successRate = note.reviewCount > 0 
+                  ? Math.round((note.successCount / note.reviewCount) * 100) 
+                  : 0;
+                
+                return (
+                  <tr key={note.id} className={`table-row ${status}`}>
+                    <td>
+                      <span className={`status-indicator ${status}`}>
+                        {status === 'overdue' ? '🔴' : status === 'due' ? '🟡' : '🟢'}
+                      </span>
+                    </td>
+                    <td className="title-cell">
+                      <span className="table-title">{note.title}</span>
+                    </td>
+                    <td className="description-cell">
+                      <span className="table-description">
+                        {note.description.length > 100 
+                          ? `${note.description.substring(0, 100)}...` 
+                          : note.description}
+                      </span>
+                    </td>
+                    <td className="tags-cell">
+                      {note.tags.length > 0 ? (
+                        <div className="table-tags">
+                          {note.tags.slice(0, 3).map(tag => (
+                            <span key={tag} className="tag tag-sm">{tag}</span>
+                          ))}
+                          {note.tags.length > 3 && (
+                            <span className="tag tag-sm">+{note.tags.length - 3}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="due-cell">
+                      <span className={`due-date ${status === 'overdue' ? 'overdue' : status === 'due' ? 'due-soon' : ''}`}>
+                        {noteService.formatRelativeTime(note.nextReview)}
+                      </span>
+                    </td>
+                    <td className="reviews-cell">
+                      {note.reviewCount}
+                    </td>
+                    <td className="success-cell">
+                      {note.reviewCount > 0 ? (
+                        <span className={`success-rate ${successRate >= 70 ? 'good' : successRate >= 50 ? 'fair' : 'poor'}`}>
+                          {successRate}%
+                        </span>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td className="actions-cell">
+                      <div className="table-actions">
+                        <button
+                          className="icon-button"
+                          onClick={() => onEditNote(note)}
+                          title="Edit note"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          className="icon-button"
+                          onClick={() => handleDeleteNote(note.id)}
+                          title="Delete note"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

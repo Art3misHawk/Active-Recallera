@@ -1,6 +1,16 @@
 // Spaced repetition intervals in days
 const INTERVALS = [1, 3, 7, 14, 30];
 
+// Add test tags for development/testing
+const addTestTags = () => {
+  const testTags = ['JavaScript', 'React', 'CSS', 'HTML', 'Programming', 'Study', 'Notes', 'Learning'];
+  const existingTags = getSavedTags();
+  const allTags = [...new Set([...existingTags, ...testTags])];
+  saveTags(allTags);
+  console.log('Test tags added:', allTags);
+  return allTags;
+};
+
 export const noteService = {
   // Create a new note
   createNote(noteData) {
@@ -16,6 +26,9 @@ export const noteService = {
       reviewCount: 0,
       successCount: 0
     };
+    
+    // Auto-save tags for future use
+    this.autoSaveTags(note.tags);
     
     this.saveNote(note);
     return note;
@@ -34,6 +47,9 @@ export const noteService = {
       description: noteData.description,
       tags: noteData.tags || []
     };
+    
+    // Auto-save tags for future use
+    this.autoSaveTags(updatedNote.tags);
     
     notes[noteIndex] = updatedNote;
     localStorage.setItem('activeRecaller_notes', JSON.stringify(notes));
@@ -183,6 +199,64 @@ export const noteService = {
     const allTags = notes.flatMap(note => note.tags);
     return [...new Set(allTags)].sort();
   },
+
+  // Save tags to localStorage for persistence
+  saveTags(tags) {
+    const existingTags = this.getSavedTags();
+    const uniqueTags = [...new Set([...existingTags, ...tags])].sort();
+    localStorage.setItem('activeRecaller_tags', JSON.stringify(uniqueTags));
+    return uniqueTags;
+  },
+
+  // Get saved tags from localStorage
+  getSavedTags() {
+    try {
+      const saved = localStorage.getItem('activeRecaller_tags');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error('Error loading saved tags:', error);
+      return [];
+    }
+  },
+
+  // Add a single tag and save automatically
+  addTag(tag) {
+    if (!tag || typeof tag !== 'string') return this.getSavedTags();
+    
+    const trimmedTag = tag.trim();
+    if (!trimmedTag) return this.getSavedTags();
+    
+    const existingTags = this.getSavedTags();
+    if (!existingTags.includes(trimmedTag)) {
+      return this.saveTags([trimmedTag]);
+    }
+    return existingTags;
+  },
+
+  // Remove a tag from saved tags
+  removeTag(tagToRemove) {
+    const existingTags = this.getSavedTags();
+    const filteredTags = existingTags.filter(tag => tag !== tagToRemove);
+    localStorage.setItem('activeRecaller_tags', JSON.stringify(filteredTags));
+    return filteredTags;
+  },
+
+  // Get all tags (combination of saved tags and tags from notes)
+  getAllAvailableTags() {
+    const savedTags = this.getSavedTags();
+    const noteTags = this.getAllTags();
+    return [...new Set([...savedTags, ...noteTags])].sort();
+  },
+
+  // Auto-save tags when creating/updating notes
+  autoSaveTags(tags) {
+    if (Array.isArray(tags) && tags.length > 0) {
+      this.saveTags(tags);
+    }
+  },
+
+  // Add test tags for development/testing
+  addTestTags,
 
   // Format relative time for display
   formatRelativeTime(date) {

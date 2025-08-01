@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import NoteModal from './components/NoteModal';
 import StudySession from './components/StudySession';
@@ -14,6 +14,8 @@ function App() {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [studyNotes, setStudyNotes] = useState([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [modalStyle, setModalStyle] = useState('glass'); // New state for modal style
 
   useEffect(() => {
     // Load notes from localStorage on app start
@@ -105,15 +107,18 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <Header 
+    <div className="claude-app">
+      <Sidebar 
         currentView={currentView}
         onNavigate={handleNavigate}
         onAddNote={handleAddNote}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        notes={notes}
       />
       
-      <main className="main-content">
-        <div className="container">
+      <main className={`claude-main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <div className="claude-container">
           {renderCurrentView()}
         </div>
       </main>
@@ -121,6 +126,7 @@ function App() {
       {showNoteModal && (
         <NoteModal
           note={editingNote}
+          modalStyle={modalStyle}
           onSave={handleSaveNote}
           onClose={() => {
             setShowNoteModal(false);

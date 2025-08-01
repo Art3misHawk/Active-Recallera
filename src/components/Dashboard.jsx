@@ -9,6 +9,12 @@ const Dashboard = ({ notes, onStartStudy, onAddNote }) => {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 3);
 
+  // Temporary function to add test tags
+  const addTestTags = () => {
+    noteService.addTestTags();
+    alert('Test tags added! Now try creating a new note and click on the tag input field.');
+  };
+
   return (
     <div className="dashboard animate-fade-in">
       <div className="dashboard-header">
@@ -59,6 +65,15 @@ const Dashboard = ({ notes, onStartStudy, onAddNote }) => {
             </button>
           </div>
         )}
+        
+        {/* Temporary test button */}
+        <button 
+          className="btn btn-outline btn-sm"
+          onClick={addTestTags}
+          style={{ marginTop: '1rem', fontSize: '12px' }}
+        >
+          🏷️ Add Test Tags (for testing)
+        </button>
       </div>
 
       {recentNotes.length > 0 && (
