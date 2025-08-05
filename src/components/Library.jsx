@@ -8,6 +8,16 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
   const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
 
   const allTags = noteService.getAllTags();
+  const stats = noteService.getStats();
+  
+  // Calculate additional stats for the dashboard
+  const dueNotes = noteService.getDueNotes();
+  const reviewedToday = notes.filter(note => {
+    if (!note.lastReviewed) return false;
+    const today = new Date().toDateString();
+    const reviewDate = new Date(note.lastReviewed).toDateString();
+    return today === reviewDate;
+  }).length;
 
   const filteredNotes = useMemo(() => {
     let filtered = notes;
@@ -71,10 +81,52 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
 
   return (
     <div className="library animate-fade-in">
-      <div className="library-header">
-        <h2>Note Library</h2>
+      {/* Learning Dashboard */}
+      <div className="learning-dashboard">
+        <div className="dashboard-header">
+          <h2 className="dashboard-title">Learning Dashboard</h2>
+        </div>
         
-        <div className="search-filters">
+        <div className="dashboard-stats">
+          <div className="stat-card">
+            <div className="stat-number">{stats.total}</div>
+            <div className="stat-label">Total Knowledge Points</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-number">{dueNotes.length}</div>
+            <div className="stat-label">Due for Review</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-number">{reviewedToday}</div>
+            <div className="stat-label">Reviewed Today</div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-number">{stats.averageSuccessRate}%</div>
+            <div className="stat-label">Weekly Accuracy</div>
+          </div>
+        </div>
+
+        {/* Learning Tips */}
+        <div className="learning-tips">
+          <h3>Learning Tips</h3>
+          <ul>
+            <li><strong>Active Recall:</strong> Try to remember information before looking at the answer</li>
+            <li><strong>Spaced Repetition:</strong> Review material at increasing intervals for better retention</li>
+            <li><strong>Consistent Practice:</strong> Regular, short study sessions are more effective than cramming</li>
+            <li><strong>Tag Organization:</strong> Use tags to categorize knowledge points by subject or difficulty</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Original Library Content */}
+      <div className="library-content">
+        <div className="library-header">
+          <h3>Your Knowledge Library</h3>
+          
+          <div className="search-filters">
           <input
             type="text"
             className="form-input search-input"
@@ -110,8 +162,8 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
               📊 Table
             </button>
           </div>
-        </div>
-      </div>
+          </div> {/* Close search-filters */}
+        </div> {/* Close library-header */}
 
       {allTags.length > 0 && (
         <div className="card">
@@ -292,6 +344,7 @@ const Library = ({ notes, onEditNote, onDeleteNote }) => {
           </table>
         </div>
       )}
+      </div>
     </div>
   );
 };

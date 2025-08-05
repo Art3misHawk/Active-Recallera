@@ -21,7 +21,6 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
     
     // Load available tags
     const tags = noteService.getAllAvailableTags();
-    console.log('Available tags loaded:', tags);
     setAvailableTags(tags);
     
     return () => {
@@ -139,11 +138,8 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
             </div>
             <div className="modal-title-section">
               <h2 className="modern-modal-title">
-                {note ? 'Edit Note' : 'Create New Note'}
+                {note ? 'Edit Note' : 'New Note'}
               </h2>
-              <p className="modal-subtitle">
-                {note ? 'Update your learning material' : 'Add something new to remember'}
-              </p>
             </div>
           </div>
           <button className="modern-close-button" onClick={handleClose}>
@@ -158,8 +154,7 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
           <div className="form-section">
             <div className="enhanced-form-group">
               <label className="enhanced-form-label">
-                <span className="label-text">Question or Concept</span>
-                <span className="label-hint">What do you want to remember?</span>
+                <span className="label-text">Question</span>
               </label>
               <div className="input-wrapper">
                 <input
@@ -167,47 +162,32 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
                   className="enhanced-form-input"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g., What is the capital of France?"
+                  placeholder="What do you want to remember?"
                   required
                   autoFocus
                 />
-                <div className="input-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
-                  </svg>
-                </div>
               </div>
             </div>
 
             <div className="enhanced-form-group">
               <label className="enhanced-form-label">
-                <span className="label-text">Answer or Explanation</span>
-                <span className="label-hint">Provide the detailed information</span>
+                <span className="label-text">Answer</span>
               </label>
               <div className="textarea-wrapper">
                 <textarea
                   className="enhanced-form-textarea"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Write your detailed answer or explanation here... For example: Paris is the capital and largest city of France."
+                  placeholder="Write your answer here..."
                   required
-                  rows={5}
+                  rows={4}
                 />
-                <div className="textarea-resize-indicator">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M22,22H20V20H22V22M22,18H20V16H22V18M18,22H16V20H18V22M18,18H16V16H18V18M14,22H12V20H14V22M22,14H20V12H22V14Z"/>
-                  </svg>
-                </div>
-              </div>
-              <div className="character-count">
-                {formData.description.length} characters
               </div>
             </div>
 
             <div className="enhanced-form-group">
               <label className="enhanced-form-label">
-                <span className="label-text">Tags</span>
-                <span className="label-hint">Organize your notes (optional)</span>
+                <span className="label-text">Tags (optional)</span>
               </label>
               <div className="tag-input-section">
                 <div className="tag-input-wrapper">
@@ -219,7 +199,7 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
                     onKeyPress={handleTagInputKeyPress}
                     onFocus={handleTagInputFocus}
                     onBlur={handleTagInputBlur}
-                    placeholder="Click to see saved tags or type to add new..."
+                    placeholder="Add tags..."
                   />
                   <button
                     type="button"
@@ -227,9 +207,7 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
                     onClick={handleAddTag}
                     disabled={!tagInput.trim()}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
-                    </svg>
+                    +
                   </button>
                 </div>
                 
@@ -251,17 +229,15 @@ const NoteModal = ({ note, onSave, onClose, modalStyle = 'glass' }) => {
                 
                 {formData.tags.length > 0 && (
                   <div className="tags-display-modern">
-                    {formData.tags.map((tag, index) => (
-                      <span key={tag} className="modern-tag" style={{'--delay': `${index * 0.1}s`}}>
+                    {formData.tags.map((tag) => (
+                      <span key={tag} className="modern-tag">
                         {tag}
                         <button
                           type="button"
                           className="tag-remove-modern"
                           onClick={() => handleRemoveTag(tag)}
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                          </svg>
+                          ×
                         </button>
                       </span>
                     ))}
